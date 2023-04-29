@@ -12,7 +12,7 @@ def list_loras():
     matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.safetensors'), recursive=True)
     matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.ckpt'), recursive=True)
 
-    return LoraResponse(names=[path.splitext(path.basename(m))[0] for m in matches])
+    return LoraResponse(names=[path.splitext(path.basename(m))[0] for m in matches if path.isfile(m)])
     
 
 def app_started(demo, app):
