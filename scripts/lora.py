@@ -8,12 +8,11 @@ class LoraResponse(BaseModel):
     names: List[str] = Field(title="Names", description="List of LoRA names available")
 
 def list_loras():
-    candidates = \
-            glob(path.join(shared.cmd_opts.lora_dir, '**/*.pt'), recursive=True) + \
-            glob(path.join(shared.cmd_opts.lora_dir, '**/*.safetensors'), recursive=True) + \
-            glob(path.join(shared.cmd_opts.lora_dir, '**/*.ckpt'), recursive=True)
+    matches = glob(path.join(shared.cmd_opts.lora_dir, '**/*.pt'), recursive=True)
+    matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.safetensors'), recursive=True)
+    matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.ckpt'), recursive=True)
 
-    return LoraResponse(names=[path.splitext(path.basename(c))[0] for c in candidates])
+    return LoraResponse(names=[path.splitext(path.basename(m))[0] for m in matches])
     
 
 def app_started(demo, app):
