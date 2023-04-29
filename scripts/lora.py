@@ -4,18 +4,26 @@ from glob import glob
 from pydantic import BaseModel, Field
 from typing import List
 
-class LoraResponse(BaseModel):
-    names: List[str] = Field(title="Names", description="List of LoRA names available")
+class LoraItem(BaseModel):
+    name: str = Field(title="Lora name")
+    filename: str = Field(title="File name")
 
 def list_loras():
     matches = glob(path.join(shared.cmd_opts.lora_dir, '**/*.pt'), recursive=True)
     matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.safetensors'), recursive=True)
     matches += glob(path.join(shared.cmd_opts.lora_dir, '**/*.ckpt'), recursive=True)
 
-    return LoraResponse(names=[path.splitext(path.basename(m))[0] for m in matches if path.isfile(m)])
+    resp = []
+    for m in matches:
+        if not path.isfile(m):
+            continue
+        
+        name = path.splitext(path.basename(m))[0]
+        resp.append(LoraItem(name=name, filename=path.abspath(m)))
     
+    return resp
 
 def app_started(demo, app):
-    app.add_api_route("/sd_api_lora/lora", list_loras, methods=["GET"], response_model=LoraResponse)
+    app.add_api_route("/sd_api_lora/lora", list_loras, methods=["GET"], response_model=List[LoraItem])
 
 script_callbacks.on_app_started(app_started)
